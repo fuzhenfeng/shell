@@ -1,15 +1,14 @@
 #!/bin/bash
+source /etc/profile
+
 APP_NAME=$2
 COMMAND="$1"
-    
+BASE_PATH=$(cd `dirname $0`; pwd)
+
 JAVA_OPTS="-Dname=$APP_NAME \
     -Xms512m -Xmx512m -Xmn128m -Xss256k \
     -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=256m \
     -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=dump \
-    -XX:+PrintGCDateStamps \
-    -XX:+PrintGCDetails \
-    -XX:+DisableExplicitGC \
-    -XX:+UseConcMarkSweepGC \
     -XX:+CMSParallelRemarkEnabled \
     -XX:+UseCMSInitiatingOccupancyOnly \
     -XX:CMSInitiatingOccupancyFraction=70 \
@@ -40,7 +39,7 @@ start(){
 stop(){
   is_exist
   if [ $? -eq "0" ]; then
-    echo "${APP_NAME} kill..."
+    echo "${APP_NAME} stop..."
     kill -9 $PID
     if [ $? -eq "0" ]; then
       echo "${APP_NAME} stop ok"
@@ -67,7 +66,7 @@ move_old(){
       DATE=`date -d today +"%Y%m%d%H%M%S"`
       JAR=`ls ${APP_NAME}`
       echo "${APP_NAME} backup..."
-      mv ${JAR} backup/${DATE}"-"${JAR}
+      mv ${JAR} ${BASE_PATH}/backup/${DATE}"-"${JAR}
       if [ $? -eq "0" ]; then
         echo "${APP_NAME} backup ok"
       else
@@ -80,9 +79,8 @@ move_old(){
 }
 
 move_new(){
-    BASE_PATH=$(cd `dirname $0`; pwd)
     echo "${APP_NAME} move jar..."
-    mv ${BASE_PATH}/temp/${APP_NAME} ${APP_NAME}
+    mv ${BASE_PATH}/temp/target/${APP_NAME} ${APP_NAME}
     if [ $? -eq "0" ]; then
       echo "${APP_NAME} move jar ok"
     else
