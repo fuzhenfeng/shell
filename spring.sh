@@ -29,10 +29,9 @@ start(){
   if [ $? -eq "0" ]; then
     echo "${APP_NAME} is already running. Pid is ${PID}"
   else
-    chmod 777 $APP_NAME
+    chmod 777 ${BASE_PATH}/$APP_NAME
     echo "${APP_NAME} start..."	
-    nohup java ${JAVA_OPTS} -jar $APP_NAME >> nohup.out 2>&1 &
-    echo "${APP_NAME} start ok"
+    nohup java ${JAVA_OPTS} -jar ${BASE_PATH}/$APP_NAME >> nohup.out 2>&1 &
   fi
 }
  
@@ -80,7 +79,7 @@ move_old(){
 
 move_new(){
     echo "${APP_NAME} move jar..."
-    mv ${BASE_PATH}/temp/target/${APP_NAME} ${APP_NAME}
+    mv ${BASE_PATH}/temp/target/${APP_NAME} ${BASE_PATH}/${APP_NAME}
     if [ $? -eq "0" ]; then
       echo "${APP_NAME} move jar ok"
     else
