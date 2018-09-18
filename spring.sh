@@ -30,7 +30,7 @@ start(){
     echo "${APP_NAME} is already running. Pid is ${PID}"
   else
     chmod 777 ${BASE_PATH}/$APP_NAME
-    echo "${APP_NAME} start..."	
+    echo "${APP_NAME} start..."
     nohup java ${JAVA_OPTS} -jar ${BASE_PATH}/$APP_NAME >> nohup.out 2>&1 &
   fi
 }
@@ -61,19 +61,13 @@ status(){
 }
 
 move_old(){
-    if [ -f "${APP_NAME}" ]; then
-      DATE=`date -d today +"%Y%m%d%H%M%S"`
-      JAR=`ls ${APP_NAME}`
-      echo "${APP_NAME} backup..."
-      mv ${JAR} ${BASE_PATH}/backup/${DATE}"-"${JAR}
-      if [ $? -eq "0" ]; then
-        echo "${APP_NAME} backup ok"
-      else
-        echo "${APP_NAME} backup fail"
-        exit 1
-      fi
+    echo "${APP_NAME} backup jar..."
+    DATE=`date -d today +"%Y%m%d%H%M%S"`
+    mv ${BASE_PATH}/${APP_NAME} ${BASE_PATH}/backup/${DATE}"-"${APP_NAME}
+    if [ $? -eq "0" ]; then
+      echo "${APP_NAME} backup ok"
     else
-      echo "${APP_NAME} file is not exit"
+      echo "${APP_NAME} backup fail"
     fi
 }
 
