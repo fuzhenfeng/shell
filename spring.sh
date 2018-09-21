@@ -1,18 +1,21 @@
 #!/bin/bash
 source /etc/profile
 
-APP_NAME=$2
 COMMAND="$1"
+APP_NAME=$2
 BASE_PATH=$(cd `dirname $0`; pwd)
+LOCAL_IP=`ifconfig eth0 |grep "inet addr"| cut -f 2 -d ":"|cut -f 1 -d " "`
 
-JAVA_OPTS="-Dname=$APP_NAME \
-    -Xms512m -Xmx512m -Xmn128m -Xss256k \
-    -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=256m \
-    -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=dump \
-    -XX:+CMSParallelRemarkEnabled \
-    -XX:+UseCMSInitiatingOccupancyOnly \
-    -XX:CMSInitiatingOccupancyFraction=70 \
-    -XX:+UseFastAccessorMethods "
+init_jms_port(){
+    JMX_PORT=10000
+    for (( ; JMX_PORT <= 65535; JMX_PORT++ ))
+		do
+			PORT=`netstat -tnlp|grep ${JMX_PORT}`
+			if [ -z "${PORT}" ]; then
+				break
+			fi
+		done
+}
 
 is_exist(){
   NAME=${APP_NAME/.jar/}
@@ -31,6 +34,18 @@ start(){
   else
     chmod 777 ${BASE_PATH}/$APP_NAME
     echo "${APP_NAME} start..."
+    init_jms_port
+    JAVA_OPTS="-Dname=$APP_NAME \
+    -Xms512m -Xmx512m -Xmn128m -Xss256k \
+    -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=256m \
+    -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=dump \
+    -Duser.dir=${BASE_PATH}
+    -Djava.rmi.server.hostname=${LOCAL_IP} \
+    -Dcom.sun.management.jmxremote \
+    -Dcom.sun.management.jmxremote.authenticate=false \
+    -Dcom.sun.management.jmxremote.ssl=false \
+    -Dcom.sun.management.jmxremote.port=${JMX_PORT} \
+    -Dcom.sun.management.jmxremote.rmi.port=${JMX_PORT}"
     nohup java ${JAVA_OPTS} -jar ${BASE_PATH}/$APP_NAME >> nohup.out 2>&1 &
   fi
 }
