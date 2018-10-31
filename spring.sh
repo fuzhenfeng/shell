@@ -7,10 +7,10 @@ BASE_PATH=$(cd `dirname $0`; pwd)
 LOCAL_IP=`ifconfig eth0 |grep "inet addr"| cut -f 2 -d ":"|cut -f 1 -d " "`
 
 init_jms_port(){
-    JMX_PORT=10000
+    JMX_PORT=11000
     for (( ; JMX_PORT <= 65535; JMX_PORT++ ))
 		do
-			PORT=`netstat -tnlp|grep ${JMX_PORT}`
+			PORT=`lsof -i:${JMX_PORT}`
 			if [ -z "${PORT}" ]; then
 				break
 			fi
