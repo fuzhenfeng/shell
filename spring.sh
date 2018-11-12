@@ -53,16 +53,11 @@ start(){
 stop(){
   is_exist
   if [ $? -eq "0" ]; then
-    echo "${APP_NAME} stop..."
-    kill -9 $PID
-    if [ $? -eq "0" ]; then
-      echo "${APP_NAME} stop ok"
-    else
-      echo "${APP_NAME} stop fail"
-      exit 1
-    fi
+    	echo "${APP_NAME} stop..."
+	STOP_MSG=`curl -X POST http://${LOCAL_IP}:10002/eden/actuator/shutdown`
+	echo ${STOP_MSG}
   else
-    echo "${APP_NAME} is not running"
+    	echo "${APP_NAME} is not running"
   fi
 }
  
